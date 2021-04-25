@@ -16,13 +16,25 @@ namespace HW_1.Properties
         {
             _weatherForecasts = weatherForecasts;
         }
-        [HttpGet("read")]
+        [HttpGet("readAll")]
         public IActionResult Get()
         {
             List<string> forecasts = new List<string>();
             foreach (var forecast in _weatherForecasts.WeatherForecasts)
             {
                 forecasts.Add($"{forecast.GetDate().ToString("d")} - {forecast.GetTemperature()}°C");
+            }
+            return Ok(forecasts);
+        }
+
+        [HttpGet("read")]
+        public IActionResult Get([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateBy)
+        {
+            List<string> forecasts = new List<string>();
+            foreach (var forecast in _weatherForecasts.WeatherForecasts)
+            {
+                if (forecast.GetDate() >= dateFrom && forecast.GetDate() <= dateBy)
+                    forecasts.Add($"{forecast.GetDate().ToString("d")} - {forecast.GetTemperature()}°C");
             }
             return Ok(forecasts);
         }
