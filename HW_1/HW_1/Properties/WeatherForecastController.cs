@@ -22,7 +22,7 @@ namespace HW_1.Properties
             List<string> forecasts = new List<string>();
             foreach (var forecast in _weatherForecasts.WeatherForecasts)
             {
-                forecasts.Add($"{forecast.GetDate()} \t {forecast.GetTemperature()}");
+                forecasts.Add($"{forecast.GetDate().ToString("d")} - {forecast.GetTemperature()}°C");
             }
             return Ok(forecasts);
         }
@@ -52,14 +52,20 @@ namespace HW_1.Properties
         [HttpDelete("delete")]
         public IActionResult Delete([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateBy)
         {
-            var forecasts = _weatherForecasts.WeatherForecasts;
-            foreach (var forecast in forecasts)
+            var forecasts = new List<WeatherForecast>();
+            foreach (var forecast in _weatherForecasts.WeatherForecasts)
+            {
+                forecasts.Add(forecast);
+            }
+
+            foreach(var forecast in forecasts)
             {
                 if (forecast.GetDate() >= dateFrom && forecast.GetDate() <= dateBy)
                 {
                     _weatherForecasts.WeatherForecasts.Remove(forecast);
                 }
             }
+            
             return Ok();
         }
     }
