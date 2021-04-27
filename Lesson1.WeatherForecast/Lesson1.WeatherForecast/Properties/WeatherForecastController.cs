@@ -19,22 +19,19 @@ namespace Lesson1.WeatherForecast.Properties
         [HttpGet("readAll")]
         public IActionResult Get()
         {
-            List<string> forecasts = new List<string>();
-            foreach (var forecast in _weatherForecasts.WeatherForecasts)
-            {
-                forecasts.Add($"{forecast.Date.ToString("d")} - {forecast.TemperatureC}°C");
-            }
-            return Ok(forecasts);
+            return Ok(_weatherForecasts.WeatherForecasts);
         }
 
         [HttpGet("read")]
         public IActionResult Get([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateBy)
         {
-            List<string> forecasts = new List<string>();
+            var forecasts = new List<WeatherForecast>();
             foreach (var forecast in _weatherForecasts.WeatherForecasts)
             {
                 if (forecast.Date >= dateFrom && forecast.Date <= dateBy)
-                    forecasts.Add($"{forecast.Date.ToString("d")} - {forecast.TemperatureC}°C");
+                {
+                    forecasts.Add(forecast);
+                }
             }
             return Ok(forecasts);
         }
@@ -71,17 +68,16 @@ namespace Lesson1.WeatherForecast.Properties
             var forecasts = new List<WeatherForecast>();
             foreach (var forecast in _weatherForecasts.WeatherForecasts)
             {
-                forecasts.Add(forecast);
-            }
-
-            foreach (var forecast in forecasts)
-            {
                 if (forecast.Date >= dateFrom && forecast.Date <= dateBy)
                 {
-                    _weatherForecasts.WeatherForecasts.Remove(forecast);
+                    forecasts.Add(forecast);
                 }
             }
-
+            foreach (var forecast in forecasts)
+            {
+                _weatherForecasts.WeatherForecasts = 
+                    _weatherForecasts.WeatherForecasts.Where(w => w != forecast).ToList();
+            }
             return Ok();
         }
     }
