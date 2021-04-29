@@ -5,11 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Lesson2.MetricsManager.Properties
+namespace MetricsAgent.Controllers
 {
     [Route("api/metrics/ram")]
     [ApiController]
     public class RamMetricsController : ControllerBase
     {
+        [HttpGet("available")]
+        public IActionResult GetFreeRAMSize()
+        {
+            return Ok();
+        }
+
     }
 }

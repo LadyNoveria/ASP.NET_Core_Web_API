@@ -5,11 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Lesson2.MetricsManager.Properties
+namespace MetricsAgent.Controllers
 {
     [Route("api/metrics/network")]
     [ApiController]
     public class NetworkMetricsController : ControllerBase
     {
+        [HttpGet("from/{fromTime}/to/{toTime}")]
+        public IActionResult GetInfoOboutTraffic([FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
+        {
+            return Ok();
+        }
     }
 }

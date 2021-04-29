@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Lesson2.MetricsManager
+namespace MetricsAgent
 {
     public class Startup
     {
@@ -26,7 +26,6 @@ namespace Lesson2.MetricsManager
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSingleton<Agents>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

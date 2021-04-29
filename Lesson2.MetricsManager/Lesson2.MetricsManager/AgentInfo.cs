@@ -7,12 +7,7 @@ namespace Lesson2.MetricsManager
 {
     public class AgentInfo
     {
-        public int AgentId { get; }
-        public Uri AgentAddress { get; } 
-        public AgentInfo(int agentId, Uri agentAddress)
-        {
-            AgentId = agentId;
-            AgentAddress = agentAddress;
-        }
+        public int AgentId { get; set; }
+        public Uri AgentAddress { get; set; } 
     }
 }

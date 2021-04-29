@@ -4,23 +4,23 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:56191",
-      "sslPort": 44384
+      "applicationUrl": "http://localhost:48706",
+      "sslPort": 44373
     }
   },
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/agents/getAgents",
+      "launchUrl": "api/metrics/cpu",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Lesson2.MetricsManager": {
+    "MetricsAgent": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/agents/getAgents",
+      "launchUrl": "weatherforecast",
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

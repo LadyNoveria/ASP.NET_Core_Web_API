@@ -5,11 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Lesson2.MetricsManager.Properties
+namespace MetricsAgent.Controllers
 {
     [Route("api/metrics/hdd")]
     [ApiController]
     public class HddMetricsController : ControllerBase
     {
+        [HttpGet("left")]
+        public IActionResult GetFreeDiskSpace()
+        {
+            return Ok();
+        }
     }
 }
