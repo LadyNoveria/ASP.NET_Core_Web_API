@@ -12,9 +12,7 @@ namespace MetricsAgent.Controllers
     public class NetworkMetricsController : ControllerBase
     {
         [HttpGet("from/{fromTime}/to/{toTime}")]
-        public IActionResult GetInfoOboutTraffic(
-            [FromRoute] TimeSpan fromTime, 
-            [FromRoute] TimeSpan toTime)
+        public IActionResult GetInfoOboutTraffic([FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
         {
             return Ok();
         }
