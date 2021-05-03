@@ -11,8 +11,10 @@ namespace MetricsAgent.Controllers
     [ApiController]
     public class HddMetricsController : ControllerBase
     {
-        [HttpGet("left")]
-        public IActionResult GetFreeDiskSpace()
+        [HttpGet("left/from/{fromTime}/to/{toTime}")]
+        public IActionResult GetFreeDiskSpace(
+            [FromRoute] TimeSpan fromTime, 
+            [FromRoute] TimeSpan toTime)
         {
             return Ok();
         }

@@ -11,23 +11,15 @@ namespace Lesson2.MetricsManager.Controllers
     [ApiController]
     public class AgentsController : ControllerBase
     {
-        private readonly Agents _agents;
-
-        public AgentsController(Agents agents)
-        {
-            _agents = agents;
-        }
-
         [HttpGet("getAgents")]
         public IActionResult GetAgents()
         { 
-            return Ok(_agents.listOfAgents);
+            return Ok();
         }
 
         [HttpPost("register")]
         public IActionResult RegisterAgent([FromBody] AgentInfo agentInfo)
         {
-            _agents.listOfAgents.Add(agentInfo);
             return Ok();
         }
 
