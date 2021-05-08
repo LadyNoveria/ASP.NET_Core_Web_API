@@ -1,27 +1,46 @@
 using System;
 using Xunit;
-using MetricsAgent.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using MetricsAgent;
+using Microsoft.Extensions.Logging;
+using Moq;
+using MetricsAgent.Requests;
+using MetricsAgent.Controllers;
 
 namespace MetricsAgentTests
 {
     public class CpuControllerUnitTest
     {
         private CpuMetricsController controller;
+        private Mock<ICpuMetricsRepository> mock;
+
         public CpuControllerUnitTest()
         {
-            controller = new CpuMetricsController();
+            mock = new Mock<ICpuMetricsRepository>();
+            var logger = new Mock<ILogger<CpuMetricsController>>();
+            controller = new CpuMetricsController(mock.Object, logger.Object);
         }
 
         [Fact]
-        public void GetInfo_ResultOk()
+        public void Create_ShouldCall_Create_From_Repository()
         {
-            var fromTime = TimeSpan.FromSeconds(0);
-            var toTime = TimeSpan.FromSeconds(100);
+            mock.Setup(repository => repository.Create(It.IsAny<CpuMetric>())).Verifiable();
 
-            var result = controller.GetInfo(fromTime, toTime);
-
-            _ = Assert.IsAssignableFrom<IActionResult>(result);
+            var result = controller.Create(
+                new CpuMetricCreateRequest {
+                    Time = TimeSpan.FromSeconds(235),
+                    Value = 42});
+            mock.Verify(repository => repository.Create(It.IsAny<CpuMetric>()));
+        }
+        
+        [Fact]  
+        public void GetByTimePeriod_ResultOk()
+        {
+            mock.Setup(repository => repository.GetAll()).Verifiable();
+            var result = controller.GetByTimePeriod(
+                TimeSpan.FromSeconds(0), 
+                TimeSpan.FromSeconds(236));
+            mock.Verify(repository => repository.GetAll());
         }
     } 
 }
