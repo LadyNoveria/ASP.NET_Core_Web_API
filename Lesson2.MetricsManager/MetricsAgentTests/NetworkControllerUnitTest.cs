@@ -38,7 +38,7 @@ namespace MetricsAgentTests
         }
 
         [Fact]
-        public void GetInfoOboutTraffic_Should_Get_Info_About_Traffic_From_The_Repository_By_Time_Period()
+        public void GetInfoOboutTraffic_ShouldCall_GetInfoOboutTraffic_From_The_Repository()
         {
             var fromTime = TimeSpan.FromSeconds(0);
             var toTime = TimeSpan.FromSeconds(100);

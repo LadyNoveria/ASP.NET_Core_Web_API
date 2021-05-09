@@ -38,7 +38,7 @@ namespace MetricsAgentTests
         }
 
         [Fact]
-        public void GetFreeRAMSize_Should_Get_Free_RAM_Size_From_The_Repository_By_Time_Period()
+        public void GetFreeRAMSize_ShouldCall_GetFreeRAMSize_From_The_Repository()
         {
             var fromTime = TimeSpan.FromSeconds(0);
             var toTime = TimeSpan.FromSeconds(100);

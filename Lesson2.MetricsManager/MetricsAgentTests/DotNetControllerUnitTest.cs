@@ -38,7 +38,7 @@ namespace MetricsAgentTests
         }
 
         [Fact]
-        public void GetByTimePeriod_Should_Get_Metrics_From_The_Repository_By_Time_Period()
+        public void GetByTimePeriod_ShouldCall_GetByTimePeriod_From_The_Repository()
         {
             var fromTime = TimeSpan.FromSeconds(0);
             var toTime = TimeSpan.FromSeconds(100);

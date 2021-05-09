@@ -38,7 +38,7 @@ namespace MetricsAgentTests
         }
 
         [Fact]
-        public void GetFreeDiskSpace_Should_Get_Free_Disk_Space_From_The_Repository_By_Time_Period()
+        public void GetFreeDiskSpace_ShouldCall_GetFreeDiskSpace_From_The_Repository()
         {
             var fromTime = TimeSpan.FromSeconds(0);
             var toTime = TimeSpan.FromSeconds(100);
