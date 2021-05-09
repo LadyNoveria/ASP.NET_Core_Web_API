@@ -18,10 +18,7 @@ namespace MetricsAgent.Controllers
     {
         private readonly ILogger<CpuMetricsController> _logger;
         private ICpuMetricsRepository _repository;
-        public CpuMetricsController(ICpuMetricsRepository repository)
-        {
-            _repository = repository;
-        }
+
         public CpuMetricsController(
             ICpuMetricsRepository repository, 
             ILogger<CpuMetricsController> logger)
@@ -44,20 +41,29 @@ namespace MetricsAgent.Controllers
 
         [HttpGet("from/{fromTime}/to/{toTime}")]
         public IActionResult GetByTimePeriod(
-            [FromRoute] TimeSpan fromTime, 
+            [FromRoute] TimeSpan fromTime,
             [FromRoute] TimeSpan toTime)
         {
             _logger.LogInformation("api/metrics/cpu/GetByTimePeriod");
-            var metrics = _repository.GetAll();
-            var response = new AllCpuMetricsResponse() { Metrics = new List<CpuMetricDto>()};
-            foreach (var metric in metrics)
+            var metrics = _repository.GetByTimePeriod(fromTime, toTime);
+            var response = new AllCpuMetricsResponse() { Metrics = new List<CpuMetricDto>() };
+            if (metrics != null)
             {
-                response.Metrics.Add(new CpuMetricDto { 
-                    Time = metric.Time, 
-                    Value = metric.Value, 
-                    Id = metric.Id}); 
+                foreach (var metric in metrics)
+                {
+                    response.Metrics.Add(new CpuMetricDto
+                    {
+                        Time = metric.Time,
+                        Value = metric.Value,
+                        Id = metric.Id
+                    });
+                }
+                return Ok(response);
             }
-            return Ok(response);
+            else
+            {
+                return Ok();
+            }
         }
     }
 }

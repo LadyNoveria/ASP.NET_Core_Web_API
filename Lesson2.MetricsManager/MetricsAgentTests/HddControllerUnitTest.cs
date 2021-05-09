@@ -24,14 +24,28 @@ namespace MetricsAgentTests
         }
 
         [Fact]
-        public void GetFreeDiskSpace_ResultOk()
+        public void Create_ShouldCall_Create_From_Repository()
+        {
+            mock.Setup(repository => repository.Create(It.IsAny<HddMetric>())).Verifiable();
+
+            var result = controller.Create(
+                new HddMetricCreateRequest
+                {
+                    Time = TimeSpan.FromSeconds(235),
+                    Value = 42
+                });
+            mock.Verify(repository => repository.Create(It.IsAny<HddMetric>()), Times.AtMostOnce());
+        }
+
+        [Fact]
+        public void GetFreeDiskSpace_Should_Get_Free_Disk_Space_From_The_Repository_By_Time_Period()
         {
             var fromTime = TimeSpan.FromSeconds(0);
             var toTime = TimeSpan.FromSeconds(100);
-            mock.Setup(repository => repository.GetAll()).Verifiable();
+            mock.Setup(repository => repository.GetByTimePeriod(fromTime, toTime)).Verifiable();
 
             var result = controller.GetFreeDiskSpace(fromTime, toTime);
-            mock.Verify(repository => repository.GetAll(), Times.AtLeastOnce());
+            mock.Verify(repository => repository.GetByTimePeriod(fromTime, toTime), Times.AtLeastOnce());
         }
     }
 }

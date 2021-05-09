@@ -8,6 +8,7 @@ namespace MetricsAgent
     public interface IRepository<T> where T: class
     {
         IList<T> GetAll();
+        IList<T> GetByTimePeriod(TimeSpan time1, TimeSpan time2);
         void Create(T item);
     }
 }

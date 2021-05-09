@@ -54,5 +54,30 @@ namespace MetricsAgent
                 }
                 return returnList;
             }
+        public IList<HddMetric> GetByTimePeriod(TimeSpan fromTime, TimeSpan toTime)
+        {
+            using var connection = new SQLiteConnection(ConnectionString);
+            connection.Open();
+            using var cmd = new SQLiteCommand(connection);
+
+            cmd.CommandText = "SELECT * FROM hddmetrics WHERE Time >= fromTime AND Time <= toTime";
+            cmd.Prepare();
+            cmd.ExecuteNonQuery();
+
+            var returnList = new List<HddMetric>();
+            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    returnList.Add(new HddMetric
+                    {
+                        Id = reader.GetInt32(0),
+                        Value = reader.GetInt32(1),
+                        Time = TimeSpan.FromSeconds(reader.GetInt32(2))
+                    });
+                }
+            }
+            return returnList;
         }
+    }
 }

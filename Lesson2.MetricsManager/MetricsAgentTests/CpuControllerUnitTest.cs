@@ -30,17 +30,18 @@ namespace MetricsAgentTests
                 new CpuMetricCreateRequest {
                     Time = TimeSpan.FromSeconds(235),
                     Value = 42});
-            mock.Verify(repository => repository.Create(It.IsAny<CpuMetric>()));
+            mock.Verify(repository => repository.Create(It.IsAny<CpuMetric>()), Times.AtMostOnce());
         }
         
         [Fact]  
-        public void GetByTimePeriod_ResultOk()
+        public void GetByTimePeriod_Should_Get_Metrics_From_The_Repository_By_Time_Period()
         {
-            mock.Setup(repository => repository.GetAll()).Verifiable();
-            var result = controller.GetByTimePeriod(
-                TimeSpan.FromSeconds(0), 
-                TimeSpan.FromSeconds(236));
-            mock.Verify(repository => repository.GetAll());
+            var fromTime = TimeSpan.FromSeconds(0);
+            var toTime = TimeSpan.FromSeconds(236);
+
+            mock.Setup(repository => repository.GetByTimePeriod(fromTime, toTime)).Verifiable();
+            var result = controller.GetByTimePeriod(fromTime, toTime);
+            mock.Verify(repository => repository.GetByTimePeriod(fromTime, toTime), Times.AtMostOnce());
         }
     } 
 }

@@ -24,14 +24,28 @@ namespace MetricsAgentTests
         }
 
         [Fact]
-        public void GetInfoOboutTraffic_ResultOk()
+        public void Create_ShouldCall_Create_From_Repository()
+        {
+            mock.Setup(repository => repository.Create(It.IsAny<NetworkMetric>())).Verifiable();
+
+            var result = controller.Create(
+                new NetworkMetricCreateRequest
+                {
+                    Time = TimeSpan.FromSeconds(235),
+                    Value = 42
+                });
+            mock.Verify(repository => repository.Create(It.IsAny<NetworkMetric>()), Times.AtMostOnce());
+        }
+
+        [Fact]
+        public void GetInfoOboutTraffic_Should_Get_Info_About_Traffic_From_The_Repository_By_Time_Period()
         {
             var fromTime = TimeSpan.FromSeconds(0);
             var toTime = TimeSpan.FromSeconds(100);
-            mock.Setup(repository => repository.GetAll()).Verifiable();
+            mock.Setup(repository => repository.GetByTimePeriod(fromTime, toTime)).Verifiable();
 
             var result = controller.GetByTimePeriod(fromTime, toTime);
-            mock.Verify(repository => repository.GetAll(), Times.AtLeastOnce());
+            mock.Verify(repository => repository.GetByTimePeriod(fromTime, toTime), Times.AtLeastOnce());
         }
     }
 }
