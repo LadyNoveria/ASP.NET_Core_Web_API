@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using MetricsAgent.Responses;
 using MetricsAgent.Requests;
 using MetricsAgent.Repositories;
-
+using AutoMapper;
 namespace MetricsAgent.Controllers
 {
     [Route("api/metrics/ram")]
@@ -43,18 +43,16 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan toTime)
         {
             _logger.LogInformation("api/metrics/ram/GetFreeRAMSize");
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<RamMetric, RamMetricDto>());
+            var map = config.CreateMapper();
+
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
             var response = new AllRamMetricsResponse() { Metrics = new List<RamMetricDto>() };
             if (metrics != null)
             {
                 foreach (var metric in metrics)
                 {
-                    response.Metrics.Add(new RamMetricDto
-                    {
-                        Time = metric.Time,
-                        Value = metric.Value,
-                        Id = metric.Id
-                    });
+                    response.Metrics.Add(map.Map<RamMetricDto>(metric));
                 }
                 return Ok(response);
             }

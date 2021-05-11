@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using MetricsAgent.Repositories;
 using MetricsAgent.Requests;
 using MetricsAgent.Responses;
+using AutoMapper;
 
 namespace MetricsAgent.Controllers
 {
@@ -42,18 +43,16 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan toTime)
         {
             _logger.LogInformation("api/metrics/dotnet/GetByTimePeriod");
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<DotNetMetric, DotNetMetricDto>());
+            var map = config.CreateMapper();
+
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
             var response = new AllDotNetMetricsResponse() { Metrics = new List<DotNetMetricDto>() };
             if (metrics != null)
             {
                 foreach (var metric in metrics)
                 {
-                    response.Metrics.Add(new DotNetMetricDto
-                    {
-                        Time = metric.Time,
-                        Value = metric.Value,
-                        Id = metric.Id
-                    });
+                    response.Metrics.Add(map.Map<DotNetMetricDto>(metric));
                 }
                 return Ok(response);
             }
