@@ -52,7 +52,6 @@ namespace MetricsManagerTests
         public void GetAgents_ResultOk()
         {
             var result = controller.GetAgents();
-            Console.WriteLine(result);
             _ = Assert.IsAssignableFrom<IActionResult>(result);
         }
     }
