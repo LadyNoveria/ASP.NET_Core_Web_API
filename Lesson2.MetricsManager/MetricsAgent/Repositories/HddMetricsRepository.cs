@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Data.SQLite;
+using Dapper;
 
 namespace MetricsAgent
 {
@@ -11,73 +12,40 @@ namespace MetricsAgent
     {
 
     }
-        public class HddMetricsRepository : IHddMetricsRepository 
+    public class HddMetricsRepository : IHddMetricsRepository 
     {
-            private const string ConnectionString = "Data Source=metrics.db;Version=3;Pooling=true;Max Pool Size=100";
-            public void Create(HddMetric item)
-            {
-                using var connection = new SQLiteConnection(ConnectionString);
-                connection.Open();
-                using var cmd = new SQLiteCommand(connection);
+        private const string ConnectionString = "Data Source=metrics.db;Version=3;Pooling=true;Max Pool Size=100";
 
-                cmd.CommandText = "DROP TABLE IF EXISTS hddmetrics ";
-                cmd.ExecuteNonQuery();
-                cmd.CommandText = "CREATE TABLE hddmetrics (id INTEGER PRIMARY KEY, value INT, time INT);";
-                cmd.ExecuteNonQuery();
+        public HddMetricsRepository()
+        {
+            SqlMapper.AddTypeHandler(new TimeSpanHandler());
+        }
 
-                cmd.CommandText = "INSERT INTO hddmetrics(value, time)VALUES(@value, @time);";
-                cmd.Parameters.AddWithValue("@value", item.Value);
-                cmd.Parameters.AddWithValue("@time", item.Time.TotalSeconds);
-                cmd.Prepare();
-                cmd.ExecuteNonQuery();
-            }
-
-            public IList<HddMetric> GetAll()
-            {
-                using var connection = new SQLiteConnection(ConnectionString);
-                connection.Open();
-                using var cmd = new SQLiteCommand(connection);
-                cmd.CommandText = "SELECT * FROM hddmetrics";
-
-                var returnList = new List<HddMetric>();
-                using (SQLiteDataReader reader = cmd.ExecuteReader())
+        public void Create(HddMetric item)
+        {
+            using var connection = new SQLiteConnection(ConnectionString);
+            connection.Execute("INSERT INTO hddmetrics(value, time)VALUES(@value, @time)",
+                new
                 {
-                    while (reader.Read())
-                    {
-                        returnList.Add(new HddMetric
-                        {
-                            Id = reader.GetInt32(0),
-                            Value = reader.GetInt32(1),
-                            Time = TimeSpan.FromSeconds(reader.GetInt32(2))
-                        });
-                    }
-                }
-                return returnList;
-            }
+                    value = item.Value,
+                    time = item.Time
+                });
+        }
+
+        public IList<HddMetric> GetAll()
+        {
+            using var connection = new SQLiteConnection(ConnectionString);
+            return connection.Query<HddMetric>("SELECT * FROM hddmetrics").ToList();
+        }
         public IList<HddMetric> GetByTimePeriod(TimeSpan fromTime, TimeSpan toTime)
         {
             using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
-
-            cmd.CommandText = "SELECT * FROM hddmetrics WHERE Time >= fromTime AND Time <= toTime";
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
-
-            var returnList = new List<HddMetric>();
-            using (SQLiteDataReader reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
+            return connection.Query<HddMetric>("SELECT * FROM hddmetrics WHERE time BETWEEN @from AND @to",
+                new
                 {
-                    returnList.Add(new HddMetric
-                    {
-                        Id = reader.GetInt32(0),
-                        Value = reader.GetInt32(1),
-                        Time = TimeSpan.FromSeconds(reader.GetInt32(2))
-                    });
-                }
-            }
-            return returnList;
+                    from = fromTime,
+                    to = toTime
+                }).ToList();
         }
     }
 }
