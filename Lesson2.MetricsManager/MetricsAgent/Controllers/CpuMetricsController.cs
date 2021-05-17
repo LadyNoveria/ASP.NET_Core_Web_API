@@ -9,6 +9,7 @@ using MetricsAgent.Requests;
 using MetricsAgent.Responses;
 using Microsoft.Extensions.Logging;
 using MetricsAgent.Repositories;
+using AutoMapper;
 
 namespace MetricsAgent.Controllers
 {
@@ -59,21 +60,20 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime,
             [FromRoute] TimeSpan toTime)
         {
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<CpuMetric, CpuMetricDto>());
+            var map = config.CreateMapper();
+
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
             _logger.LogInformation(
-                "Получен список CPU метрик из базы данных за период с {0} по {1}", 
-                fromTime, 
+                "Получен список CPU метрик из базы данных за период с {0} по {1}",
+                fromTime,
                 toTime);
             var response = new AllCpuMetricsResponse() { Metrics = new List<CpuMetricDto>() };
             if (metrics != null)
             {
                 foreach (var metric in metrics)
                 {
-                    response.Metrics.Add(new CpuMetricDto
-                    {
-                        Time = metric.Time,
-                        Value = metric.Value
-                    });
+                    response.Metrics.Add(map.Map<CpuMetricDto>(metric));
                     _logger.LogInformation(
                         "Получены CPU метрики с параметрами Time {0}, Value {1}",
                         metric.Time,

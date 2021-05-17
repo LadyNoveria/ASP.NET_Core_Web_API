@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using MetricsAgent.Requests;
 using MetricsAgent.Responses;
 using MetricsAgent.Repositories;
+using AutoMapper;
 
 namespace MetricsAgent.Controllers
 {
@@ -57,6 +58,9 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime, 
             [FromRoute] TimeSpan toTime)
         {
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<NetworkMetric, NetworkMetricDto>());
+            var map = config.CreateMapper();
+
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
             _logger.LogInformation(
                 "Получен список Network метрик из базы данных за период с {0} по {1}",
@@ -70,8 +74,9 @@ namespace MetricsAgent.Controllers
                     response.Metrics.Add(new NetworkMetricDto
                     {
                         Time = metric.Time,
-                        Value = metric.Value
+                        Value = metric.Value,
                     });
+                    response.Metrics.Add(map.Map<NetworkMetricDto>(metric));
                     _logger.LogInformation(
                         "Получены Network метрики с параметрами Time {0}, Value {1}",
                         metric.Time,
