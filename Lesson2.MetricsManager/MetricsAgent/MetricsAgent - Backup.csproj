@@ -5,6 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="Dapper" Version="2.0.90" />
     <PackageReference Include="FluentMigrator" Version="3.2.15" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.2.15" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.2.15" />
@@ -12,6 +15,10 @@
     <PackageReference Include="NLog" Version="4.7.9" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.12.0" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
