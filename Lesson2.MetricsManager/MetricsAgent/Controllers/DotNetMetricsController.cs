@@ -28,12 +28,27 @@ namespace MetricsAgent.Controllers
         [HttpPost("create")]
         public IActionResult Create([FromBody] DotNetMetricCreateRequest request)
         {
-            _logger.LogInformation("api/metrics/dotnet/Create");
-            _repository.Create(new DotNetMetric
+            try
             {
-                Time = request.Time,
-                Value = request.Value
-            });
+                _repository.Create(new DotNetMetric
+                {
+                    Time = request.Time,
+                    Value = request.Value
+                });
+                _logger.LogInformation(
+                    "Сохранение DotNet метрики в БД с параметрами Time {0}, Value {1}", 
+                    request.Time, 
+                    request.Value);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(
+                    "Ошибка сохранения DotNet метрики с параметрами Time {0}, Value {1}. Ошибка {2}", 
+                    request.Time,
+                    request.Value,
+                    ex.Message);
+                return Ok(ex.Message);
+            }
             return Ok();
         }
         [HttpGet("errors-count/from/{fromTime}/to/{toTime}")]
@@ -41,8 +56,11 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime, 
             [FromRoute] TimeSpan toTime)
         {
-            _logger.LogInformation("api/metrics/dotnet/GetByTimePeriod");
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
+            _logger.LogInformation(
+                "Получен список DotNet метрик из базы данных за период с {0} по {1}",
+                fromTime,
+                toTime);
             var response = new AllDotNetMetricsResponse() { Metrics = new List<DotNetMetricDto>() };
             if (metrics != null)
             {
@@ -51,14 +69,21 @@ namespace MetricsAgent.Controllers
                     response.Metrics.Add(new DotNetMetricDto
                     {
                         Time = metric.Time,
-                        Value = metric.Value,
-                        Id = metric.Id
+                        Value = metric.Value
                     });
+                    _logger.LogInformation(
+                        "Получены DotNet метрики с параметрами Time {0}, Value {1}",
+                        metric.Time,
+                        metric.Value);
                 }
                 return Ok(response);
             }
             else
             {
+                _logger.LogInformation(
+                    "Cписок DotNet метрик из базы данных за период с {0} по {1} пуст",
+                    fromTime,
+                    toTime);
                 return Ok();
             }
         }

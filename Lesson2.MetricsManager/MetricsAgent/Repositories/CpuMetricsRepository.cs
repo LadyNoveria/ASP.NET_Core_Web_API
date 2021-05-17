@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Data.SQLite;
+using MetricsAgent.Repositories;
 
 namespace MetricsAgent
 {
@@ -11,12 +12,13 @@ namespace MetricsAgent
     }
     public class CpuMetricsRepository : ICpuMetricsRepository
     {
-        private const string ConnectionString = "Data Source=metrics.db;Version=3;Pooling=true;Max Pool Size=100";
+        private ConnectionProvider _connectionProvider;
+        private SQLiteConnection _connection;
         public void Create(CpuMetric item)
         {
-            using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
 
             cmd.CommandText = "DROP TABLE IF EXISTS cpumetrics ";
             cmd.ExecuteNonQuery();
@@ -32,9 +34,9 @@ namespace MetricsAgent
 
         public IList<CpuMetric> GetAll()
         {
-            using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
 
             cmd.CommandText = "SELECT * FROM cpumetrics";
             cmd.ExecuteNonQuery();
@@ -56,9 +58,9 @@ namespace MetricsAgent
 
         public IList<CpuMetric> GetByTimePeriod(TimeSpan fromTime, TimeSpan toTime)
         {
-            using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
 
             cmd.CommandText = "SELECT * FROM cpumetrics WHERE Time >= fromTime AND Time <= toTime";
             cmd.Prepare();

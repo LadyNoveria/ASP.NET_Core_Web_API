@@ -10,7 +10,9 @@ namespace MetricsAgent.Responses
         public List<CpuMetricDto> Metrics { get; set; }
     }
 
-    public class CpuMetricDto : MetricDto
+    public class CpuMetricDto
     {
+        public TimeSpan Time { get; set; }
+        public int Value { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Data.SQLite;
+using MetricsAgent.Repositories;
 
 namespace MetricsAgent
 {
@@ -11,54 +12,56 @@ namespace MetricsAgent
     {
 
     }
-        public class HddMetricsRepository : IHddMetricsRepository 
+    public class HddMetricsRepository : IHddMetricsRepository 
     {
-            private const string ConnectionString = "Data Source=metrics.db;Version=3;Pooling=true;Max Pool Size=100";
-            public void Create(HddMetric item)
+        private ConnectionProvider _connectionProvider;
+        private SQLiteConnection _connection;
+        public void Create(HddMetric item)
+        {
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
+
+            cmd.CommandText = "DROP TABLE IF EXISTS hddmetrics ";
+            cmd.ExecuteNonQuery();
+            cmd.CommandText = "CREATE TABLE hddmetrics (id INTEGER PRIMARY KEY, value INT, time INT);";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO hddmetrics(value, time)VALUES(@value, @time);";
+            cmd.Parameters.AddWithValue("@value", item.Value);
+            cmd.Parameters.AddWithValue("@time", item.Time.TotalSeconds);
+            cmd.Prepare();
+            cmd.ExecuteNonQuery();
+        }
+
+        public IList<HddMetric> GetAll()
+        {
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
+
+            cmd.CommandText = "SELECT * FROM hddmetrics";
+
+            var returnList = new List<HddMetric>();
+            using (SQLiteDataReader reader = cmd.ExecuteReader())
             {
-                using var connection = new SQLiteConnection(ConnectionString);
-                connection.Open();
-                using var cmd = new SQLiteCommand(connection);
-
-                cmd.CommandText = "DROP TABLE IF EXISTS hddmetrics ";
-                cmd.ExecuteNonQuery();
-                cmd.CommandText = "CREATE TABLE hddmetrics (id INTEGER PRIMARY KEY, value INT, time INT);";
-                cmd.ExecuteNonQuery();
-
-                cmd.CommandText = "INSERT INTO hddmetrics(value, time)VALUES(@value, @time);";
-                cmd.Parameters.AddWithValue("@value", item.Value);
-                cmd.Parameters.AddWithValue("@time", item.Time.TotalSeconds);
-                cmd.Prepare();
-                cmd.ExecuteNonQuery();
-            }
-
-            public IList<HddMetric> GetAll()
-            {
-                using var connection = new SQLiteConnection(ConnectionString);
-                connection.Open();
-                using var cmd = new SQLiteCommand(connection);
-                cmd.CommandText = "SELECT * FROM hddmetrics";
-
-                var returnList = new List<HddMetric>();
-                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    returnList.Add(new HddMetric
                     {
-                        returnList.Add(new HddMetric
-                        {
-                            Id = reader.GetInt32(0),
-                            Value = reader.GetInt32(1),
-                            Time = TimeSpan.FromSeconds(reader.GetInt32(2))
-                        });
-                    }
+                        Id = reader.GetInt32(0),
+                        Value = reader.GetInt32(1),
+                        Time = TimeSpan.FromSeconds(reader.GetInt32(2))
+                    });
                 }
-                return returnList;
             }
+            return returnList;
+        }
         public IList<HddMetric> GetByTimePeriod(TimeSpan fromTime, TimeSpan toTime)
         {
-            using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
 
             cmd.CommandText = "SELECT * FROM hddmetrics WHERE Time >= fromTime AND Time <= toTime";
             cmd.Prepare();

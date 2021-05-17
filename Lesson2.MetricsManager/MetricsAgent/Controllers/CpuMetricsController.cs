@@ -30,12 +30,27 @@ namespace MetricsAgent.Controllers
         [HttpPost("create")]
         public IActionResult Create([FromBody] CpuMetricCreateRequest request)
         {
-            _logger.LogInformation("api/metrics/cpu/Create");
-            _repository.Create(new CpuMetric
+            try
             {
-                Time = request.Time,
-                Value = request.Value
-            }) ;
+                _repository.Create(new CpuMetric
+                {
+                    Time = request.Time,
+                    Value = request.Value
+                });
+                _logger.LogInformation(
+                    "Сохранение CPU метрики в БД с параметрами Time {0}, Value {1}", 
+                    request.Time, 
+                    request.Value);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(
+                    "Ошибка сохранения CPU метрики с параметрами Time {0}, Value {1}. Ошибка {2}", 
+                    request.Time,
+                    request.Value,
+                    ex.Message);
+                return Ok(ex.Message);
+            }
             return Ok();
         }
 
@@ -44,8 +59,11 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime,
             [FromRoute] TimeSpan toTime)
         {
-            _logger.LogInformation("api/metrics/cpu/GetByTimePeriod");
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
+            _logger.LogInformation(
+                "Получен список CPU метрик из базы данных за период с {0} по {1}", 
+                fromTime, 
+                toTime);
             var response = new AllCpuMetricsResponse() { Metrics = new List<CpuMetricDto>() };
             if (metrics != null)
             {
@@ -54,14 +72,21 @@ namespace MetricsAgent.Controllers
                     response.Metrics.Add(new CpuMetricDto
                     {
                         Time = metric.Time,
-                        Value = metric.Value,
-                        Id = metric.Id
+                        Value = metric.Value
                     });
+                    _logger.LogInformation(
+                        "Получены CPU метрики с параметрами Time {0}, Value {1}",
+                        metric.Time,
+                        metric.Value);
                 }
                 return Ok(response);
             }
             else
             {
+                _logger.LogInformation(
+                    "Cписок CPU метрик из базы данных за период с {0} по {1} пуст",
+                    fromTime,
+                    toTime);
                 return Ok();
             }
         }

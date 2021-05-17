@@ -28,12 +28,27 @@ namespace MetricsAgent.Controllers
         [HttpPost("create")]
         public IActionResult Create([FromBody] NetworkMetricCreateRequest request)
         {
-            _logger.LogInformation("api/metrics/network/Create");
-            _repository.Create(new NetworkMetric
+            try
             {
-                Time = request.Time,
-                Value = request.Value
-            });
+                _repository.Create(new NetworkMetric
+                {
+                    Time = request.Time,
+                    Value = request.Value
+                });
+                _logger.LogInformation(
+                    "Сохранение Network метрики в БД с параметрами Time {0}, Value {1}",
+                    request.Time,
+                    request.Value);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(
+                    "Ошибка сохранения Network метрики с параметрами Time {0}, Value {1}. Ошибка {2}",
+                    request.Time,
+                    request.Value,
+                    ex.Message);
+                return Ok(ex.Message);
+            }
             return Ok();
         }
 
@@ -42,8 +57,11 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime, 
             [FromRoute] TimeSpan toTime)
         {
-            _logger.LogInformation("api/metrics/network/GetByTimePeriod");
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
+            _logger.LogInformation(
+                "Получен список Network метрик из базы данных за период с {0} по {1}",
+                fromTime,
+                toTime);
             var response = new AllNetworkMetricsResponse() { Metrics = new List<NetworkMetricDto>() };
             if (metrics != null)
             {
@@ -52,14 +70,21 @@ namespace MetricsAgent.Controllers
                     response.Metrics.Add(new NetworkMetricDto
                     {
                         Time = metric.Time,
-                        Value = metric.Value,
-                        Id = metric.Id
+                        Value = metric.Value
                     });
+                    _logger.LogInformation(
+                        "Получены Network метрики с параметрами Time {0}, Value {1}",
+                        metric.Time,
+                        metric.Value);
                 }
                 return Ok(response);
             }
             else
             {
+                _logger.LogInformation(
+                    "Cписок Network метрик из базы данных за период с {0} по {1} пуст",
+                    fromTime,
+                    toTime);
                 return Ok();
             }
         }

@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 namespace MetricsAgent.Requests
 {
-    public class NetworkMetricCreateRequest: CreateRequest
+    public class NetworkMetricCreateRequest
     {
+        public TimeSpan Time { get; set; }
+        public int Value { get; set; }
     }
 }

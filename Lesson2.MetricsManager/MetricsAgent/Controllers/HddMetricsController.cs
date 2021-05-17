@@ -28,12 +28,27 @@ namespace MetricsAgent.Controllers
         [HttpPost("create")]
         public IActionResult Create([FromBody] HddMetricCreateRequest request)
         {
-            _logger.LogInformation("api/metrics/hdd/Create");
-            _repository.Create(new HddMetric
+            try
             {
-                Time = request.Time,
-                Value = request.Value
-            });
+                _repository.Create(new HddMetric
+                {
+                    Time = request.Time,
+                    Value = request.Value
+                });
+                _logger.LogInformation(
+                    "Сохранение Hdd метрики в БД с параметрами Time {0}, Value {1}",
+                    request.Time,
+                    request.Value);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(
+                    "Ошибка сохранения Hdd метрики с параметрами Time {0}, Value {1}. Ошибка {2}",
+                    request.Time,
+                    request.Value,
+                    ex.Message);
+                return Ok(ex.Message);
+            }
             return Ok();
         }
 
@@ -42,8 +57,11 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime,
             [FromRoute] TimeSpan toTime)
         {
-            _logger.LogInformation("api/metrics/hdd/GetFreeDiskSpace");
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
+            _logger.LogInformation(
+                "Получено количество свободного пространства на жестком диске из базы данных за период с {0} по {1}",
+                fromTime,
+                toTime);
             var response = new AllHddMetricsResponse() { Metrics = new List<HddMetricDto>() };
             if (metrics != null)
             {
@@ -52,14 +70,21 @@ namespace MetricsAgent.Controllers
                     response.Metrics.Add(new HddMetricDto
                     {
                         Time = metric.Time,
-                        Value = metric.Value,
-                        Id = metric.Id
+                        Value = metric.Value
                     });
+                    _logger.LogInformation(
+                        "Получены Hdd метрики с параметрами Time {0}, Value {1}",
+                        metric.Time,
+                        metric.Value);
                 }
                 return Ok(response);
             }
             else
             {
+                _logger.LogInformation(
+                    "Cписок Hdd метрик из базы данных за период с {0} по {1} пуст",
+                    fromTime,
+                    toTime);
                 return Ok();
             }
         }

@@ -2,15 +2,19 @@
 using Xunit;
 using Lesson2.MetricsManager.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using Microsoft.Extensions.Logging;
 
 namespace MetricsManagerTests
 {
     public class DotNetControllerUnitTest
     {
         private DotNetMetricsController controller;
+
         public DotNetControllerUnitTest()
         {
-            controller = new DotNetMetricsController(); 
+            var logger = new Mock<ILogger<DotNetMetricsController>>();
+            controller = new DotNetMetricsController(logger.Object);
         }
 
         [Fact]

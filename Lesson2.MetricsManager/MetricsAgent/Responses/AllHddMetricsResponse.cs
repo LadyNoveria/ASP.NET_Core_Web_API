@@ -9,7 +9,9 @@ namespace MetricsAgent.Responses
     {
         public List<HddMetricDto> Metrics { get; set; }
     }
-    public class HddMetricDto: MetricDto
+    public class HddMetricDto
     {
+        public TimeSpan Time { get; set; }
+        public int Value { get; set; }
     }
 }

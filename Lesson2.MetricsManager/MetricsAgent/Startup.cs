@@ -33,6 +33,7 @@ namespace MetricsAgent
             services.AddScoped<IHddMetricsRepository, HddMetricsRepository>();
             services.AddScoped<INetworkMetricsRepository, NetworkMetricsRepository>();
             services.AddScoped<IDotNetMetricsRepository, DotNetMetricsRepository>();
+            services.AddScoped<IConnectionProvider, ConnectionProvider>();
         }
 
         private void ConfigureSqLiteConnection(IServiceCollection services)

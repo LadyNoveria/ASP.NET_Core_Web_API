@@ -12,12 +12,13 @@ namespace MetricsAgent.Repositories
     }
     public class NetworkMetricsRepository:INetworkMetricsRepository
     {
-        private const string ConnectionString = "Data Source=metrics.db;Version=3;Pooling=true;Max Pool Size=100";
+        private ConnectionProvider _connectionProvider;
+        private SQLiteConnection _connection;
         public void Create(NetworkMetric item)
         {
-            using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
 
             cmd.CommandText = "DROP TABLE IF EXISTS networkmetrics ";
             cmd.ExecuteNonQuery();
@@ -33,9 +34,10 @@ namespace MetricsAgent.Repositories
 
         public IList<NetworkMetric> GetAll()
         {
-            using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
+
             cmd.CommandText = "SELECT * FROM networkmetrics";
 
             var returnList = new List<NetworkMetric>();
@@ -55,9 +57,9 @@ namespace MetricsAgent.Repositories
         }
         public IList<NetworkMetric> GetByTimePeriod(TimeSpan fromTime, TimeSpan toTime)
         {
-            using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
 
             cmd.CommandText = "SELECT * FROM networkmetrics WHERE Time >= fromTime AND Time <= toTime";
             cmd.Prepare();

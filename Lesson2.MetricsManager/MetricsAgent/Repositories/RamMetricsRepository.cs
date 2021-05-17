@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Data.SQLite;
-
+using MetricsAgent.Repositories;
 namespace MetricsAgent
 {
     public interface IRamMetricsRepository : IRepository<RamMetric>
@@ -12,12 +12,13 @@ namespace MetricsAgent
     }
     public class RamMetricsRepository: IRamMetricsRepository
     {
-        private const string ConnectionString = "Data Source=metrics.db;Version=3;Pooling=true;Max Pool Size=100";
+        private ConnectionProvider _connectionProvider;
+        private SQLiteConnection _connection;
         public void Create(RamMetric item)
         {
-            using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
 
             cmd.CommandText = "DROP TABLE IF EXISTS rammetrics ";
             cmd.ExecuteNonQuery();
@@ -33,10 +34,13 @@ namespace MetricsAgent
 
         public IList<RamMetric> GetAll()
         {
-            using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
+
             cmd.CommandText = "SELECT * FROM rammetrics";
+            cmd.Prepare();
+            cmd.ExecuteNonQuery();
 
             var returnList = new List<RamMetric>();
             using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -56,9 +60,9 @@ namespace MetricsAgent
 
         public IList<RamMetric> GetByTimePeriod(TimeSpan fromTime, TimeSpan toTime)
         {
-            using var connection = new SQLiteConnection(ConnectionString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
+            _connectionProvider = new ConnectionProvider();
+            _connection = _connectionProvider.CreateOpenedConnection();
+            using var cmd = new SQLiteCommand(_connection);
 
             cmd.CommandText = "SELECT * FROM rammetrics WHERE Time >= fromTime AND Time <= toTime";
             cmd.Prepare();

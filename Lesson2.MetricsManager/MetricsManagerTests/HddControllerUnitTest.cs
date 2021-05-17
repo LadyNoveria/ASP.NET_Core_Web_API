@@ -2,15 +2,19 @@
 using Xunit;
 using Lesson2.MetricsManager.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using Microsoft.Extensions.Logging;
 
 namespace MetricsManagerTests
 {
     public class HddControllerUnitTest
     {
         private HddMetricsController controller;
+
         public HddControllerUnitTest()
         {
-            controller = new HddMetricsController();
+            var logger = new Mock<ILogger<HddMetricsController>>();
+            controller = new HddMetricsController(logger.Object);
         }
 
         [Fact]
