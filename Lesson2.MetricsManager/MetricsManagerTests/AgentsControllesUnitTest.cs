@@ -3,15 +3,21 @@ using Xunit;
 using Lesson2.MetricsManager.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Lesson2.MetricsManager;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace MetricsManagerTests
 {
     public class AgentsControllerUnitTest
     {
         private AgentsController controller;
+        private Mock<AgentsController> mock;
+
         public AgentsControllerUnitTest()
         {
-            controller = new AgentsController(new Agents());
+            mock = new Mock<AgentsController>();
+            var logger = new Mock<ILogger<AgentsController>>();
+            controller = new AgentsController(logger.Object);
         }
 
         [Fact]
@@ -52,7 +58,6 @@ namespace MetricsManagerTests
         public void GetAgents_ResultOk()
         {
             var result = controller.GetAgents();
-            Console.WriteLine(result);
             _ = Assert.IsAssignableFrom<IActionResult>(result);
         }
     }

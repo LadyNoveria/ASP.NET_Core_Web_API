@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Lesson2.MetricsManager.Controllers
 {
@@ -11,35 +7,38 @@ namespace Lesson2.MetricsManager.Controllers
     [ApiController]
     public class AgentsController : ControllerBase
     {
-        private readonly Agents _agents;
+        private readonly ILogger<AgentsController> _logger;
 
-        public AgentsController(Agents agents)
+        public AgentsController(ILogger<AgentsController> logger)
         {
-            _agents = agents;
+            _logger = logger;
         }
 
         [HttpGet("getAgents")]
         public IActionResult GetAgents()
-        { 
-            return Ok(_agents.listOfAgents);
+        {
+            _logger.LogInformation("api/agents/GetAgents");
+            return Ok();
         }
 
         [HttpPost("register")]
         public IActionResult RegisterAgent([FromBody] AgentInfo agentInfo)
         {
-            _agents.listOfAgents.Add(agentInfo);
+            _logger.LogInformation("api/agents/RegisterAgent");
             return Ok();
         }
 
         [HttpPut("enable/{agentId}")]
         public IActionResult EnableAgentById([FromRoute] int agentId)
         {
+            _logger.LogInformation("api/agents/EnableAgentById");
             return Ok();
         }
 
         [HttpPut("disable/{agentId}")]
         public IActionResult DisableAgentById([FromRoute] int agentId)
         {
+            _logger.LogInformation("api/agents/DisableAgentById");
             return Ok();
         }
     }

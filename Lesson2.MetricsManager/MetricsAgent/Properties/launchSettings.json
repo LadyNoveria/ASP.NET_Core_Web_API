@@ -12,7 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/metrics/cpu",
+      "launchUrl": "api/cpumetrics/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
