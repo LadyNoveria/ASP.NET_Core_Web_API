@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using MetricsAgent.Requests;
 using MetricsAgent.Controllers;
+using AutoMapper;
 
 namespace MetricsAgentTests
 {
@@ -13,12 +14,21 @@ namespace MetricsAgentTests
     {
         private CpuMetricsController controller;
         private Mock<ICpuMetricsRepository> mock;
+        private readonly IMapper _mapper;
 
         public CpuControllerUnitTest()
         {
             mock = new Mock<ICpuMetricsRepository>();
             var logger = new Mock<ILogger<CpuMetricsController>>();
-            controller = new CpuMetricsController(mock.Object, logger.Object);
+
+            var mapperConfiguration = new MapperConfiguration(
+                mp => mp.AddProfile(new MapperProfile()));
+            _mapper = mapperConfiguration.CreateMapper();
+
+            controller = new CpuMetricsController(
+                mock.Object, 
+                logger.Object, 
+                _mapper);
         }
 
         [Fact]

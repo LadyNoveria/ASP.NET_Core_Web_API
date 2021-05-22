@@ -18,12 +18,15 @@ namespace MetricsAgent.Controllers
     {
         private readonly ILogger<DotNetMetricsController> _logger;
         private IDotNetMetricsRepository _repository;
+        private readonly IMapper _mapper;
         public DotNetMetricsController(
             IDotNetMetricsRepository repository,
-            ILogger<DotNetMetricsController> logger)
+            ILogger<DotNetMetricsController> logger,
+            IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
@@ -57,9 +60,6 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime, 
             [FromRoute] TimeSpan toTime)
         {
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<DotNetMetric, DotNetMetricDto>());
-            var map = config.CreateMapper();
-
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
             _logger.LogInformation(
                 "Получен список DotNet метрик из базы данных за период с {0} по {1}",
@@ -70,7 +70,7 @@ namespace MetricsAgent.Controllers
             {
                 foreach (var metric in metrics)
                 {
-                    response.Metrics.Add(map.Map<DotNetMetricDto>(metric));
+                    response.Metrics.Add(_mapper.Map<DotNetMetricDto>(metric));
                     _logger.LogInformation(
                         "Получены DotNet метрики с параметрами Time {0}, Value {1}",
                         metric.Time,

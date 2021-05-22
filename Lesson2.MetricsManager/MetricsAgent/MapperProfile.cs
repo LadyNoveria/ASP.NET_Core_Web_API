@@ -1,8 +1,17 @@
 ﻿using AutoMapper;
+using MetricsAgent.Responses;
 
 namespace MetricsAgent
 {
-    internal class MapperProfile : Profile
+    public class MapperProfile : Profile
     {
+        public MapperProfile()
+        {
+            CreateMap<CpuMetric, CpuMetricDto>();
+            CreateMap<HddMetric, HddMetricDto>();
+            CreateMap<RamMetric, RamMetricDto>();
+            CreateMap<NetworkMetric, NetworkMetricDto>();
+            CreateMap<DotNetMetric, DotNetMetricDto>();
+        }
     }
 }

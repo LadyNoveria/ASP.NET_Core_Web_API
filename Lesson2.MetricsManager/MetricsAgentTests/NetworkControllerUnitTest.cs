@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MetricsAgent;
+using AutoMapper;
 
 namespace MetricsAgentTests
 {
@@ -15,12 +16,18 @@ namespace MetricsAgentTests
     {
         private NetworkMetricsController controller;
         private Mock<INetworkMetricsRepository> mock;
+        private readonly IMapper _mapper;
 
         public NetworkControllerUnitTest()
         {
             mock = new Mock<INetworkMetricsRepository>();
             var logger = new Mock<ILogger<NetworkMetricsController>>();
-            controller = new NetworkMetricsController(mock.Object, logger.Object);
+
+            var mapperConfiguration = new MapperConfiguration(
+                mp => mp.AddProfile(new MapperProfile()));
+            _mapper = mapperConfiguration.CreateMapper();
+
+            controller = new NetworkMetricsController(mock.Object, logger.Object, _mapper);
         }
 
         [Fact]

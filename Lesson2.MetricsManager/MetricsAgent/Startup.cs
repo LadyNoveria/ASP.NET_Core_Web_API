@@ -36,15 +36,19 @@ namespace MetricsAgent
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddScoped<ICpuMetricsRepository, CpuMetricsRepository>();
-            services.AddScoped<IRamMetricsRepository, RamMetricsRepository>();
-            services.AddScoped<IHddMetricsRepository, HddMetricsRepository>();
-            services.AddScoped<INetworkMetricsRepository, NetworkMetricsRepository>();
-            services.AddScoped<IDotNetMetricsRepository, DotNetMetricsRepository>();
-            services.AddScoped<IConnectionProvider, ConnectionProvider>();
+            services.AddSingleton<ICpuMetricsRepository, CpuMetricsRepository>();
+            services.AddSingleton<IRamMetricsRepository, RamMetricsRepository>();
+            services.AddSingleton<IHddMetricsRepository, HddMetricsRepository>();
+            services.AddSingleton<INetworkMetricsRepository, NetworkMetricsRepository>();
+            services.AddSingleton<IDotNetMetricsRepository, DotNetMetricsRepository>();
+            services.AddSingleton<IConnectionProvider, ConnectionProvider>();
             services.AddSingleton<IJobFactory, SingletonJobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddSingleton<CpuMetricJob>();
+            services.AddSingleton<RamMetricJob>();
+            services.AddSingleton<HddMetricJob>();
+            services.AddSingleton<NetworkMetricJob>();
+            services.AddSingleton<DotNetMetricJob>();
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(CpuMetricJob),
                 cronExpression: "0/5 * * * * ?"));
@@ -60,11 +64,13 @@ namespace MetricsAgent
             services.AddSingleton(new JobSchedule(
                 jobType: typeof(DotNetMetricJob),
                 cronExpression: "0/5 * * * * ?"));
+            services.AddHostedService<QuartzHostedService>();
 
             var mapperConfiguration = new MapperConfiguration(
                 mp => mp.AddProfile(new MapperProfile()));
             var mapper = mapperConfiguration.CreateMapper();
             services.AddSingleton(mapper);
+
             services.AddFluentMigratorCore().
                 ConfigureRunner(rb => rb.AddSQLite().
                     WithGlobalConnectionString(ConnectionString).

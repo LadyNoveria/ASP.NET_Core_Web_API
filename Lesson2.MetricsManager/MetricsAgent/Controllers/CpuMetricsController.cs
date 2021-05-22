@@ -19,13 +19,16 @@ namespace MetricsAgent.Controllers
     {
         private readonly ILogger<CpuMetricsController> _logger;
         private ICpuMetricsRepository _repository;
+        private readonly IMapper _mapper;
 
         public CpuMetricsController(
             ICpuMetricsRepository repository, 
-            ILogger<CpuMetricsController> logger)
+            ILogger<CpuMetricsController> logger,
+            IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
@@ -60,9 +63,6 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime,
             [FromRoute] TimeSpan toTime)
         {
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<CpuMetric, CpuMetricDto>());
-            var map = config.CreateMapper();
-
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
             _logger.LogInformation(
                 "Получен список CPU метрик из базы данных за период с {0} по {1}",
@@ -73,7 +73,7 @@ namespace MetricsAgent.Controllers
             {
                 foreach (var metric in metrics)
                 {
-                    response.Metrics.Add(map.Map<CpuMetricDto>(metric));
+                    response.Metrics.Add(_mapper.Map<CpuMetricDto>(metric));
                     _logger.LogInformation(
                         "Получены CPU метрики с параметрами Time {0}, Value {1}",
                         metric.Time,

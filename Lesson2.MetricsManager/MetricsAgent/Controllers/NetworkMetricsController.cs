@@ -18,12 +18,15 @@ namespace MetricsAgent.Controllers
     {
         private readonly ILogger<NetworkMetricsController> _logger;
         private INetworkMetricsRepository _repository;
+        private readonly IMapper _mapper;
         public NetworkMetricsController(
             INetworkMetricsRepository repository,
-            ILogger<NetworkMetricsController> logger)
+            ILogger<NetworkMetricsController> logger,
+            IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
@@ -58,9 +61,6 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime, 
             [FromRoute] TimeSpan toTime)
         {
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<NetworkMetric, NetworkMetricDto>());
-            var map = config.CreateMapper();
-
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
             _logger.LogInformation(
                 "Получен список Network метрик из базы данных за период с {0} по {1}",
@@ -76,7 +76,7 @@ namespace MetricsAgent.Controllers
                         Time = metric.Time,
                         Value = metric.Value,
                     });
-                    response.Metrics.Add(map.Map<NetworkMetricDto>(metric));
+                    response.Metrics.Add(_mapper.Map<NetworkMetricDto>(metric));
                     _logger.LogInformation(
                         "Получены Network метрики с параметрами Time {0}, Value {1}",
                         metric.Time,

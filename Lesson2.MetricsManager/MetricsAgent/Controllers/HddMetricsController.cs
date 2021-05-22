@@ -18,12 +18,15 @@ namespace MetricsAgent.Controllers
     {
         private readonly ILogger<HddMetricsController> _logger;
         private IHddMetricsRepository _repository;
+        private readonly IMapper _mapper;
         public HddMetricsController(
             IHddMetricsRepository repository, 
-            ILogger<HddMetricsController> logger)
+            ILogger<HddMetricsController> logger,
+            IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
@@ -58,9 +61,6 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime,
             [FromRoute] TimeSpan toTime)
         {
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<HddMetric, HddMetricDto>());
-            var map = config.CreateMapper();
-
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
             _logger.LogInformation(
                 "Получено количество свободного пространства на жестком диске из базы данных за период с {0} по {1}",
@@ -76,7 +76,7 @@ namespace MetricsAgent.Controllers
                         Time = metric.Time,
                         Value = metric.Value
                     });
-                    response.Metrics.Add(map.Map<HddMetricDto>(metric));
+                    response.Metrics.Add(_mapper.Map<HddMetricDto>(metric));
                     _logger.LogInformation(
                         "Получены Hdd метрики с параметрами Time {0}, Value {1}",
                         metric.Time,

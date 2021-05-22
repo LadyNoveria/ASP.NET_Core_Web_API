@@ -18,12 +18,16 @@ namespace MetricsAgent.Controllers
     {
         private readonly ILogger<RamMetricsController> _logger;
         private IRamMetricsRepository _repository;
+        private readonly IMapper _mapper;
+
         public RamMetricsController(
             IRamMetricsRepository repository,
-            ILogger<RamMetricsController> logger)
+            ILogger<RamMetricsController> logger,
+            IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
@@ -58,9 +62,6 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime,
             [FromRoute] TimeSpan toTime)
         {
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<RamMetric, RamMetricDto>());
-            var map = config.CreateMapper();
-
             var metrics = _repository.GetByTimePeriod(fromTime, toTime);
             _logger.LogInformation(
                 "Получено количество свободной оперативной памяти из базы данных за период с {0} по {1}",
@@ -76,7 +77,7 @@ namespace MetricsAgent.Controllers
                         Time = metric.Time,
                         Value = metric.Value,
                     });
-                    response.Metrics.Add(map.Map<RamMetricDto>(metric));
+                    response.Metrics.Add(_mapper.Map<RamMetricDto>(metric));
                     _logger.LogInformation(
                         "Получены Ram метрики с параметрами Time {0}, Value {1}",
                         metric.Time,

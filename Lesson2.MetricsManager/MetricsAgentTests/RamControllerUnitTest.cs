@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MetricsAgent;
+using AutoMapper;
 
 namespace MetricsAgentTests
 {
@@ -15,12 +16,18 @@ namespace MetricsAgentTests
     {
         private RamMetricsController controller;
         private Mock<IRamMetricsRepository> mock;
+        private readonly IMapper _mapper;
 
         public RamControllerUnitTest()
         {
             mock = new Mock<IRamMetricsRepository>();
             var logger = new Mock<ILogger<RamMetricsController>>();
-            controller = new RamMetricsController(mock.Object, logger.Object);
+
+            var mapperConfiguration = new MapperConfiguration(
+                mp => mp.AddProfile(new MapperProfile()));
+            _mapper = mapperConfiguration.CreateMapper();
+
+            controller = new RamMetricsController(mock.Object, logger.Object, _mapper);
         }
 
         [Fact]
